@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>aeb80023-a94e-4e56-8df6-6e3e850e2fe1</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Matriz.py</StartupFile>
+    <StartupFile>testeOtimizado.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,10 +22,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="base.py" />
+    <Compile Include="client.py" />
     <Compile Include="Matriz.py" />
     <Compile Include="MatrizDistribuido.py" />
     <Compile Include="MatrizDistribuidoThread.py" />
     <Compile Include="MatrizThread.py" />
+    <Compile Include="rmi.py" />
+    <Compile Include="server.py" />
+    <Compile Include="testeOtimizado.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="matriz1.txt" />
