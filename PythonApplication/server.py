@@ -1,10 +1,5 @@
 import Pyro5.api
-
-@Pyro5.api.expose
-class Calculator(object):
-    def test(text):
-        return text + " ok"
-   
+import base
 
 def main():
     print("Running RMI Server...")
@@ -12,9 +7,9 @@ def main():
     deamon = Pyro5.server.Daemon()
     print("\nFinding the Name Server...")
     ns = Pyro5.api.locate_ns()
-    uri = deamon.register(Calculator)
+    uri = deamon.register(base.Matriz)
     print("\tRegistering the object...")
-    ns.register("example.calculator", uri)
+    ns.register("Matriz", uri)
     print("\tWaiting requests...")
     deamon.requestLoop()
 

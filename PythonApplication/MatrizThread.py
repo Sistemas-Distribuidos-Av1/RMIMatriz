@@ -1,43 +1,41 @@
-from __future__ import nested_scopes
-from multiprocessing import Array, Pool
-import multiprocessing
-from multiprocessing import shared_memory
-from multiprocessing.shared_memory import SharedMemory
-import time
-import base
-import sys
-import array
+from multiprocessing import Process, Pool, Queue
+from typing import Iterable
+from base import Matriz
 import numpy as np
+import time
 
-shm = SharedMemory("Array Compartilhado", True, 4096 * 4096 * 32)
-matrizFinal = np.ndarray([4096, 4096], dtype="float", buffer=shm.buf)
+if __name__ == "__main__":                
+    A = Matriz.carregaMatriz(Matriz, "matA.txt")
+    B = Matriz.carregaMatriz(Matriz, "matB.txt")        
+    #matrizFinal = np.ndarray([len(A), len(B[0])], dtype='float')    
+    matrizFinal = []    
+    #processos = []
 
-shm_matriz1 = SharedMemory("Matriz1", True, 4096 * 4096 * 32)
-matriz1 = np.ndarray([4096, 4096], dtype="float", buffer=shm_matriz1.buf)
-matriz1[:] = base.carregaMatriz("matA.txt")
+    start_timer = time.time()
+    queue = Queue()
 
-def calculaSubMatriz(x, matriz1, matriz2):  
-    linha = int(len(matriz1) / 8)
-    coluna = int(len(matriz2[0]))    
-    for i in range(linha):
-        for r in range(linha):
-            mult = 0    
-            for j in range(coluna):
-                mult += matriz1[i + x * linha][j] * matriz2[j][r + x * linha]  
-            matrizFinal[i + x * linha][r + x * linha] = mult            
+    with Pool() as pool:
+        for i in range (8):
+            matrizFinal.append(pool.starmap(Matriz.mul, [(Matriz, A[i * 512 : i * 512 + 512,], B[:])]))
+            #matrizFinal[i * 512: i * 512 + 512,] = pool.starmap(Matriz.mul, [(Matriz, A[i * 512 : i * 512 + 512,], B[:])])            
+        #for result in pool.starmap(Matriz.mul, [(Matriz, A[i : i + 512,], B[:])]):
+        #    print()
+    """
+    for x in range(8):
+        t = x * 512
+        processo = Process(target = Matriz.mul, args = (Matriz, A[t : t + 512,], B[:]))
+        processo.start()
+        processos.append(processo)
 
-def calculaMatriz(matrix1, matrix2):                
-    with Pool(8) as pool:
-        pool.starmap(calculaSubMatriz, [(x, matrix1, matrix2) for x in range (8)])        
-        pool.close()
-        pool.join()    
-    shm.unlink()
-    
-if __name__ == "__main__":    
-        
-    matriz2 = base.carregaMatriz("matB.txt")      
-    
-    #start_timer = time.time()
-    matrix = base.monitorarTempo(matriz1, matriz2, 'matA_B_C.txt', calculaMatriz)
-    #end_timer = time.time() - start_timer            
-    base.salvaMatriz("matC.txt", matrizFinal)
+    [processos[x].join() for x in range(8)]    
+    #[processos[x].close() for x in range(8)]
+    """
+    end_timer = time.time() - start_timer   
+    print("Passou")
+    """
+    for x in range(8):
+        t = x * 512
+        matrizFinal[t: t + 512, :] = queue.get()        
+    """
+    Matriz.salvarCronometro(Matriz, end_timer)
+    Matriz.salvaMatriz(Matriz, "matC.txt" ,matrizFinal)      
